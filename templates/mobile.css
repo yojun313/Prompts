@@ -1,0 +1,45 @@
+/* 모바일 앱 셸 — viewport.js 와 한 쌍. <body class="app-shell"> */
+:root { --app-h: 100%; --vv-top: 0px; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
+button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+/* 앱 전체를 화면에 고정. 문서는 스크롤하지 않고 내용 영역만 스크롤한다. */
+html:has(body.app-shell) { height: 100%; overflow: hidden; }
+body.app-shell {
+  position: fixed; left: 0; right: 0; top: var(--vv-top);
+  height: var(--app-h); width: 100%; overflow: hidden; overscroll-behavior: none;
+}
+
+/* safe-area — 유틸리티 CSS 가 뒤에 와도 지지 않게 !important */
+.safe-top    { padding-top: max(1.25rem, env(safe-area-inset-top)) !important; }
+.safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important; }
+header.safe-top-header {
+  padding-top: env(safe-area-inset-top) !important;
+  height: calc(3.5rem + env(safe-area-inset-top)) !important;
+}
+
+@media (pointer: coarse), (max-width: 767.98px) {
+  /* 16px 미만이면 iOS 가 포커스 때 확대 */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), textarea, select { font-size: 16px !important; }
+  body.app-shell { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  body.app-shell :is(input, textarea, pre, code, table, .select-text) { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  .overflow-y-auto, .overflow-auto, .overflow-x-auto { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  button:active, .tab-item:active { opacity: .65; }
+}
+
+/* 하단 탭바 (md 미만) */
+.tabbar {
+  display: flex; flex-shrink: 0; z-index: 30;
+  padding: 6px 6px max(6px, calc(env(safe-area-inset-bottom) - 12px));
+  background: rgba(10, 13, 24, .92);
+  backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.tab-item { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 5px 0 2px; border-radius: 12px; color: rgba(255, 255, 255, .45); }
+.tab-item .tab-icon { position: relative; font-size: 18px; line-height: 1; height: 20px; }
+.tab-item .tab-label { font-size: 10.5px; font-weight: 700; }
+.tab-item.active { color: #93c5fd; }
+html.kb-open .tabbar { display: none; }
+@media (min-width: 768px) { .tabbar { display: none; } }

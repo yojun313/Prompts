@@ -1,0 +1,32 @@
+<!-- 모든 페이지(로그인 포함) <head> 에 넣는다. "MyApp" 과 색은 바꿔서 쓴다. -->
+<meta charset="UTF-8">
+<!-- 확대 금지 + 노치까지 사용 + 안드로이드 키보드 때 레이아웃 축소 -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="robots" content="noindex, nofollow">
+
+<!-- 첫 페인트 전에 테마 적용 (CSP 때문에 인라인 대신 파일, defer 없이) -->
+<script src="/static/theme-boot.js"></script>
+
+<!-- 홈 화면 앱 (추가할 때 한 번만 읽힘 → 바꾸면 홈 화면에서 지우고 다시 추가) -->
+<meta name="theme-color" content="#05070f">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<!-- black-translucent 금지: iOS 홈 화면 앱에서 화면 아래가 상태바 높이만큼 잘린다 -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="MyApp">
+<meta name="application-name" content="MyApp">
+
+<!-- 아이콘: iOS 는 PNG 만 (scripts/render_icons.py) -->
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
+
+<!-- 모든 CSS · 폰트 자체 호스팅 (CSP script-src 'self') -->
+<link rel="stylesheet" href="/static/vendor/fonts.css">
+<link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/static/theme.css">
+<link rel="stylesheet" href="/static/mobile.css">
+<!-- Tailwind 빌드 CSS 는 마지막 (Play CDN 과 같은 우선순위). safe-area 규칙은 mobile.css 에서 !important -->
+<link rel="stylesheet" href="/static/vendor/tailwind.css">
+<script src="/static/viewport.js" defer></script>
