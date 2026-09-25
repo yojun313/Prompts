@@ -1,7 +1,7 @@
 /* 모바일 앱 셸 — viewport.js 와 한 쌍. <body class="app-shell"> */
 :root { --app-h: 100%; --vv-top: 0px; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
-button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+button, a, summary, label, [role="button"] { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
 /* 앱 전체를 화면에 고정. 문서는 스크롤하지 않고 내용 영역만 스크롤한다. */
 html:has(body.app-shell) { height: 100%; overflow: hidden; }
@@ -25,7 +25,6 @@ header.safe-top-header {
   body.app-shell :is(input, textarea, pre, code, table, .select-text) { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
   ::-webkit-scrollbar { width: 0; height: 0; }
   .overflow-y-auto, .overflow-auto, .overflow-x-auto { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  button:active, .tab-item:active { opacity: .65; }
 }
 
 /* 하단 탭바 (md 미만) */
@@ -43,3 +42,25 @@ header.safe-top-header {
 .tab-item.active { color: #93c5fd; }
 html.kb-open .tabbar { display: none; }
 @media (min-width: 768px) { .tabbar { display: none; } }
+
+/* ── 누르는 느낌 (press.js 가 .is-pressed / .press-release 를 붙인다 · 09-native-touch-feel.md) ── */
+.is-pressed { transition: none !important; opacity: .5; scale: .96; }   /* transform 대신 scale: 기존 transform 을 안 건드린다 */
+.is-pressed:disabled { opacity: .3; scale: none; }
+:is(.tab-item, .w-full).is-pressed { scale: none; }                     /* 넓은 것 · 탭은 흐려지기만 */
+:is(.row, .list-item).is-pressed { opacity: 1; scale: none; box-shadow: inset 0 0 0 999px rgba(255,255,255,.08); }
+html[data-theme="light"] :is(.row, .list-item).is-pressed { box-shadow: inset 0 0 0 999px rgba(15,23,42,.07); }
+.press-release { transition: opacity .2s ease-out, scale .2s cubic-bezier(.2,.9,.3,1.2), box-shadow .25s ease-out !important; }
+.is-busy { opacity: .55; pointer-events: none; cursor: progress; }
+@media (prefers-reduced-motion: reduce) { .is-pressed { scale: none; } .press-release { transition: opacity .15s !important; } }
+
+/* 작은 버튼의 터치 영역만 사방 8px 넓히기 (보이는 크기는 그대로, ≈44pt) */
+@media (pointer: coarse) {
+  .icon-btn { position: relative; }            /* 이미 absolute 인 버튼에는 넣지 말 것 */
+  .icon-btn::after { content: ''; position: absolute; inset: -8px; }
+}
+
+/* :hover 는 마우스 기기에서만 — 휴대폰에서 탭한 뒤 hover 색이 남는 것(sticky hover) 방지.
+   Tailwind 는 tailwind.config.js 에 future: { hoverOnlyWhenSupported: true } */
+@media (hover: hover) {
+  .row:hover { background: rgba(255,255,255,.05); }
+}

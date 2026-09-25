@@ -14,8 +14,10 @@ uv run --with playwright python scripts/mobile_audit.py http://127.0.0.1:8765 ou
 
 ```python
 ctx = await browser.new_context(
-    viewport={"width": 390, "height": 844},   # iPhone 14/15/16
-    device_scale_factor=3, is_mobile=True, has_touch=True,   # has_touch → (pointer: coarse) 가 참이 된다
+    viewport={"width": 390, "height": 844},  # iPhone 14/15/16
+    device_scale_factor=3,
+    is_mobile=True,
+    has_touch=True,  # has_touch → (pointer: coarse) 가 참이 된다
     color_scheme="dark",
 )
 ```
@@ -51,8 +53,10 @@ while (el && el !== document.body) {
 
 ```python
 cdp = await ctx.new_cdp_session(page)
-await cdp.send("Emulation.setSafeAreaInsetsOverride",
-               {"insets": {"top": 59, "bottom": 34, "left": 0, "right": 0}})
+await cdp.send(
+    "Emulation.setSafeAreaInsetsOverride",
+    {"insets": {"top": 59, "bottom": 34, "left": 0, "right": 0}},
+)
 # 이제 env(safe-area-inset-*) 가 실제 값이 된다 → 헤더 높이가 56+59 인지 측정
 ```
 
@@ -87,7 +91,7 @@ window.__keyboard = (open) => { vv.height = open ? 785 - 336 : 785; vv.dispatchE
 ## 5. 인터랙션까지 확인
 
 ```python
-await page.set_input_files("#fileInput", ["red.png", "notes.txt"])       # 파일 선택
+await page.set_input_files("#fileInput", ["red.png", "notes.txt"])  # 파일 선택
 await page.evaluate("""() => { const dt = new DataTransfer();              // 드래그앤드롭
   dt.items.add(new File(['x'], 'shot.png', {type: 'image/png'}));
   const el = document.querySelector('#termScroll'), r = el.getBoundingClientRect();
@@ -96,20 +100,27 @@ await page.evaluate("""() => { const dt = new DataTransfer();              // �
 await page.evaluate("""() => { const dt = new DataTransfer();              // 붙여넣기
   dt.items.add(new File(['img'], 'image.png', {type: 'image/png'}));
   document.getElementById('promptInput').dispatchEvent(new ClipboardEvent('paste', {clipboardData: dt, bubbles: true})); }""")
-await page.go_back()                                                        # 뒤로 가기로 패널 닫힘 확인
-page.on("console", lambda m: m.type == "error" and errors.append(m.text))   # CSP 위반 = "Refused to …"
+await page.go_back()  # 뒤로 가기로 패널 닫힘 확인
+page.on(
+    "console", lambda m: m.type == "error" and errors.append(m.text)
+)  # CSP 위반 = "Refused to …"
 ```
 
 ## 6. 스크린샷 여러 장을 한 장으로 붙여 보기
 
 ```python
 from PIL import Image
+
 ims = [Image.open(f) for f in files]
-out = Image.new('RGB', (sum(i.width for i in ims) // 2, max(i.height for i in ims) // 2))
+out = Image.new(
+    "RGB", (sum(i.width for i in ims) // 2, max(i.height for i in ims) // 2)
+)
 x = 0
 for im in ims:
-    im = im.resize((im.width // 2, im.height // 2)); out.paste(im, (x, 0)); x += im.width
-out.save('all.png')
+    im = im.resize((im.width // 2, im.height // 2))
+    out.paste(im, (x, 0))
+    x += im.width
+out.save("all.png")
 ```
 
 ## 7. 실제 기기 확인 순서

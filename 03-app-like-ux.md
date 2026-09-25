@@ -141,7 +141,7 @@ function attachLongPress(root, selector, onLongPress) {
     const target = e.target.closest(selector);
     if (!target || e.button > 0 || e.target.closest('button')) return;
     fired = false; start = { x: e.clientX, y: e.clientY };
-    timer = setTimeout(() => { fired = true; navigator.vibrate?.(12); onLongPress(target); }, 520);
+    timer = setTimeout(() => { fired = true; haptic(12); onLongPress(target); }, 520);   // haptic: 09 참고 (타이머 안이라 iOS 는 안 울림)
   });
   const cancel = () => { clearTimeout(timer); timer = null; };
   root.addEventListener('pointermove', (e) => { if (timer && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) cancel(); });
@@ -174,7 +174,7 @@ keyBar.addEventListener('click', (e) => { /* 여기서 동작. click 은 그대�
 ```
 
 - 최대 3개만 쌓고, 액션 버튼(되돌리기/열기)을 달 수 있게 하면 앱처럼 느껴진다.
-- 알림 성격이면 `navigator.vibrate?.([20, 60, 20])` (안드로이드).
+- 알림 성격이면 `navigator.vibrate?.([20, 60, 20])` (안드로이드 전용 — iOS 햅틱은 09-native-touch-feel.md).
 
 ## 7. 작은 것들이 만드는 차이
 

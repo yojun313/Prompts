@@ -12,9 +12,11 @@ server → client : {"t":"windows",...} / {"t":"screen",...} / {"t":"ack","id":7
 ```python
 async def pump(ch):
     while True:
-        await ch.push_screen()                      # 이전과 JSON 이 같으면 안 보냄
+        await ch.push_screen()  # 이전과 JSON 이 같으면 안 보냄
         try:
-            await asyncio.wait_for(ch.wake.wait(), timeout=0.4)   # 입력 직후엔 wake 로 즉시 갱신
+            await asyncio.wait_for(
+                ch.wake.wait(), timeout=0.4
+            )  # 입력 직후엔 wake 로 즉시 갱신
         except TimeoutError:
             pass
         ch.wake.clear()

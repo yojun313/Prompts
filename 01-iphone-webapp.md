@@ -212,13 +212,13 @@ html.kb-open .composer.safe-bottom { padding-bottom: .25rem !important; } /* 키
   }
   ::-webkit-scrollbar { width: 0; height: 0; }
   .overflow-y-auto, .overflow-auto, .overflow-x-auto { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  button:active, .tab-item:active { opacity: .65; }   /* 누르는 느낌 */
 }
 button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 ```
 
 - 페이지 설명 문구 · 푸터는 휴대폰에서 숨긴다 (`hidden sm:block`, `hidden md:block`).
 - 하단 탭바, 바텀 시트, 뒤로 가기 처리 → 03-app-like-ux.md
+- 누르는 느낌(눌림 표시 · 햅틱 · 터치 영역 · sticky hover) → 09-native-touch-feel.md
 
 ---
 

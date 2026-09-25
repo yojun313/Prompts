@@ -23,18 +23,24 @@ CDN 스크립트(Tailwind Play CDN, jsdelivr …)가 바뀌거나 뚫리면 관�
 5. 폰트도 자체 호스팅 (`@fontsource-variable/*` 의 woff2)
 
 ```python
-CSP = "; ".join([
-    "default-src 'self'",
-    "script-src 'self'",                    # 인라인 · eval · 외부 스크립트 불가
-    "style-src 'self' 'unsafe-inline'",     # style="width:40%" 같은 속성용 (스타일은 코드 실행 불가)
-    "font-src 'self'",
-    "img-src 'self' data: blob:",           # blob: 첨부 미리보기
-    "media-src 'self' blob:",
-    "connect-src 'self'",                   # fetch · WebSocket (same-origin wss 포함)
-    "manifest-src 'self'",
-    "worker-src 'none'", "object-src 'none'", "frame-src 'none'",
-    "base-uri 'none'", "form-action 'self'", "frame-ancestors 'none'",
-])
+CSP = "; ".join(
+    [
+        "default-src 'self'",
+        "script-src 'self'",  # 인라인 · eval · 외부 스크립트 불가
+        "style-src 'self' 'unsafe-inline'",  # style="width:40%" 같은 속성용 (스타일은 코드 실행 불가)
+        "font-src 'self'",
+        "img-src 'self' data: blob:",  # blob: 첨부 미리보기
+        "media-src 'self' blob:",
+        "connect-src 'self'",  # fetch · WebSocket (same-origin wss 포함)
+        "manifest-src 'self'",
+        "worker-src 'none'",
+        "object-src 'none'",
+        "frame-src 'none'",
+        "base-uri 'none'",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+    ]
+)
 # HTTPS 면 + "; upgrade-insecure-requests"
 ```
 
@@ -42,15 +48,15 @@ CSP = "; ".join([
 
 ```python
 {
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY",
-  "Referrer-Policy": "same-origin",
-  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), clipboard-read=()",
-  "Cross-Origin-Opener-Policy": "same-origin",
-  "Cross-Origin-Resource-Policy": "same-origin",
-  "X-Robots-Tag": "noindex, nofollow, noarchive",
-  "Cache-Control": "no-store",
-  "Strict-Transport-Security": "max-age=63072000; includeSubDomains",   # HTTPS 일 때
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "same-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), clipboard-read=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "X-Robots-Tag": "noindex, nofollow, noarchive",
+    "Cache-Control": "no-store",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains",  # HTTPS 일 때
 }
 # Server 헤더 제거 (uvicorn server_header=False)
 ```
@@ -60,9 +66,12 @@ CSP = "; ".join([
 ```python
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
+
 @app.exception_handler(RequestValidationError)
 async def _(request, exc):
-    return JSONResponse(status_code=422, content={"detail": "잘못된 요청입니다."})  # 스키마 노출 금지
+    return JSONResponse(
+        status_code=422, content={"detail": "잘못된 요청입니다."}
+    )  # 스키마 노출 금지
 ```
 
 ## 3. CSRF · WebSocket 탈취 막기
@@ -73,8 +82,9 @@ async def _(request, exc):
 def is_same_origin(headers) -> bool:
     source = headers.get("origin") or headers.get("referer")
     if not source or source == "null":
-        return False                      # 없으면 거부 (현대 브라우저는 POST · WS 에 항상 Origin 을 보낸다)
+        return False  # 없으면 거부 (현대 브라우저는 POST · WS 에 항상 Origin 을 보낸다)
     return urlsplit(source).netloc.lower() == (headers.get("host") or "").lower()
+
 
 # ASGI 미들웨어에서: POST/PUT/PATCH/DELETE 와 모든 WebSocket 에 적용 → 403 / close(1008)
 ```
@@ -92,6 +102,7 @@ def hash_password(pw, iterations=600_000):
     dk = hashlib.pbkdf2_hmac("sha256", pw.encode(), salt, iterations)
     return f"pbkdf2_sha256${iterations}${b64(salt)}${b64(dk)}"
 
+
 # 비교는 항상 상수 시간
 hmac.compare_digest(a.encode(), b.encode())
 ```
@@ -103,7 +114,10 @@ def totp_code(secret_b32, counter, digits=6):
     key = base64.b32decode(secret_b32 + "=" * (-len(secret_b32) % 8), casefold=True)
     h = hmac.new(key, struct.pack(">Q", counter), hashlib.sha1).digest()
     o = h[-1] & 0x0F
-    return str((int.from_bytes(h[o:o+4], "big") & 0x7FFFFFFF) % 10**digits).zfill(digits)
+    return str((int.from_bytes(h[o : o + 4], "big") & 0x7FFFFFFF) % 10**digits).zfill(
+        digits
+    )
+
 
 # 검증: ±30초 허용, 한 번 쓴 시간 구간은 다시 받지 않기 (재전송 방지)
 # 비밀번호가 맞을 때만 코드 검사 (틀린 비밀번호로 유효 코드를 소모시키지 못하게)
@@ -132,10 +146,14 @@ def totp_code(secret_b32, counter, digits=6):
 
 ```python
 # ✅ shell 없이 인자 리스트, 대상은 실제 존재하는 ID 만
-subprocess.run(["tmux", "send-keys", "-t", pane_id, "-l", "--", text], shell=False, timeout=5)
-PANE_ID = re.compile(r"^%\d{1,6}$")          # 받은 값 형식 검증 + 현재 목록에 있는지 재확인
+subprocess.run(
+    ["tmux", "send-keys", "-t", pane_id, "-l", "--", text], shell=False, timeout=5
+)
+PANE_ID = re.compile(r"^%\d{1,6}$")  # 받은 값 형식 검증 + 현재 목록에 있는지 재확인
 NAMED_KEYS = {"Enter", "Escape", "Tab", ...}  # 키 이름은 허용 목록만
-SESSION_NAME = re.compile(r"^[\w가-힣][\w\-가-힣]{0,49}$")  # '-' 로 시작 금지 (옵션으로 해석됨)
+SESSION_NAME = re.compile(
+    r"^[\w가-힣][\w\-가-힣]{0,49}$"
+)  # '-' 로 시작 금지 (옵션으로 해석됨)
 ```
 
 - 설정 파일(JS 등)에 값 넣을 땐 `json.dumps` 로 문자열 리터럴화 → 코드 주입 불가

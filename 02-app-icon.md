@@ -91,9 +91,11 @@ uv run --with playwright python scripts/render_icons.py path/to/icon.svg path/to
 
 ```python
 page = await browser.new_page(viewport={"width": size, "height": size})
-await page.set_content(f"<html><body style='margin:0'><div style='width:{size}px;height:{size}px'>"
-                       f"{svg.replace('<svg ', '<svg width=100% height=100% ')}</div></body></html>")
-await page.screenshot(path=out, omit_background=False)   # 투명 없이
+await page.set_content(
+    f"<html><body style='margin:0'><div style='width:{size}px;height:{size}px'>"
+    f"{svg.replace('<svg ', '<svg width=100% height=100% ')}</div></body></html>"
+)
+await page.screenshot(path=out, omit_background=False)  # 투명 없이
 ```
 
 ## 5. 확인
