@@ -38,7 +38,7 @@
 
   // ── 눌림 표시 ─────────────────────────────────────────────────────────
   // 누르는 순간 0ms 로 .is-pressed, 뗄 때 .press-release 로 200ms 에 걸쳐 복귀.
-  // 목록 줄은 70ms 늦게 (스크롤하려고 댄 손가락에 번쩍이지 않게), 10px 넘게 움직이거나 스크롤이 시작되면 취소.
+  // 목록 줄은 50ms 늦게 (스크롤하려고 댄 손가락에 번쩍이지 않게), 10px 넘게 움직이거나 스크롤이 시작되면 취소.
   let pressed = null;
   let pressTimer = 0;
   let pressStart = null;
@@ -60,14 +60,14 @@
     if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
     pressed = target;
     pressStart = { x: event.clientX, y: event.clientY };
-    if (event.pointerType !== 'mouse' && target.matches(ROW)) pressTimer = setTimeout(() => pressed?.classList.add('is-pressed'), 70);
+    if (event.pointerType !== 'mouse' && target.matches(ROW)) pressTimer = setTimeout(() => pressed?.classList.add('is-pressed'), 50);
     else target.classList.add('is-pressed');
   }, opts);
   document.addEventListener('pointermove', (event) => {
     if (pressed && pressStart && Math.hypot(event.clientX - pressStart.x, event.clientY - pressStart.y) > 10) release(false);
   }, opts);
   document.addEventListener('pointerup', () => {
-    // 70ms 안에 톡 친 줄도 눌림을 한 번 보여 준다
+    // 50ms 안에 톡 친 줄도 눌림을 한 번 보여 준다
     if (pressed && !pressed.classList.contains('is-pressed')) {
       clearTimeout(pressTimer);
       const el = pressed;

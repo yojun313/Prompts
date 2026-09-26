@@ -10,7 +10,7 @@
 | 3 | 탭하면 `:hover` 가 **남아 있다** (sticky hover) | hover 가 없다 | `:hover` 를 `@media (hover: hover)` 안으로 |
 | 4 | 진동이 없다 (iOS 에는 `navigator.vibrate` 가 없음) | 스위치 · 선택 · 길게 누르기에 햅틱 | iOS 18+ **숨긴 스위치 체크박스** 트릭 |
 | 5 | 22~30px 버튼 → **빗나간다** | 최소 44pt 터치 영역 | `::after { inset: -8px }` 로 터치 영역만 넓힌다 |
-| 6 | 스크롤하려고 목록에 손을 대면 **줄이 번쩍인다** | 줄은 조금 늦게(~70ms) 하이라이트, 움직이면 취소 | 줄은 70ms 지연 + 10px 움직이면 취소 |
+| 6 | 스크롤하려고 목록에 손을 대면 **줄이 번쩍인다** | 줄은 조금 늦게(~50ms) 하이라이트, 움직이면 취소 | 줄은 50ms 지연 + 10px 움직이면 취소 |
 | 7 | 서버 응답 전까지 **아무 반응 없음** → 또 누른다 | 누른 버튼이 바로 "처리 중" | 방금 누른 버튼이 시작한 요청이 120ms 넘으면 `.is-busy` |
 
 > 복사해서 쓰는 코드: `templates/press.js` + `templates/mobile.css` 의 "누르는 느낌" 부분.
@@ -29,7 +29,7 @@ CSS `:active` 만으로는 부족하다.
 
 ```js
 const PRESSABLE = 'button, [role="button"], a[href], summary, .row';
-const ROW = '.row';                        // 목록 줄: 배경만 진해지고 70ms 늦게
+const ROW = '.row';                        // 목록 줄: 배경만 진해지고 50ms 늦게
 let pressed = null, pressTimer = 0, pressStart = null;
 
 function release(fade = true) {
@@ -48,14 +48,14 @@ document.addEventListener('pointerdown', (e) => {
   const t = e.target.closest?.(PRESSABLE);       // 가장 안쪽 → 줄 안의 ⋯ 버튼을 누르면 그 버튼만
   if (!t || t.disabled) return;
   pressed = t; pressStart = { x: e.clientX, y: e.clientY };
-  if (e.pointerType !== 'mouse' && t.matches(ROW)) pressTimer = setTimeout(() => pressed?.classList.add('is-pressed'), 70);
+  if (e.pointerType !== 'mouse' && t.matches(ROW)) pressTimer = setTimeout(() => pressed?.classList.add('is-pressed'), 50);
   else t.classList.add('is-pressed');
 }, opts);
 document.addEventListener('pointermove', (e) => {
   if (pressed && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) > 10) release(false);
 }, opts);
 document.addEventListener('pointerup', () => {
-  // 70ms 안에 톡 친 줄도 한 번은 보여 준다 (추가와 제거를 같은 프레임에 하면 안 보인다)
+  // 50ms 안에 톡 친 줄도 한 번은 보여 준다 (추가와 제거를 같은 프레임에 하면 안 보인다)
   if (pressed && !pressed.classList.contains('is-pressed')) {
     const el = pressed; clearTimeout(pressTimer); el.classList.add('is-pressed');
     pressTimer = setTimeout(() => { if (pressed === el) release(true); }, 90);
@@ -202,7 +202,7 @@ document.addEventListener('click', (e) => {
 ## 6. 스크롤 중 번쩍임 · 잘못 눌림
 
 1번 코드가 이미 처리한다.
-- 줄은 70ms 늦게 하이라이트한다.
+- 줄은 50ms 늦게 하이라이트한다.
 - 10px 넘게 움직이거나 `pointercancel` · `scroll` 이 오면 즉시(페이드 없이) 취소한다.
 
 그 밖에:
@@ -277,7 +277,7 @@ await page.wait_for_timeout(30)
 
 - [ ] 빈 `touchstart` 리스너 (passive)
 - [ ] 누를 때 0ms · 뗄 때 ~200ms (`.is-pressed` / `.press-release`)
-- [ ] 버튼 = 흐려짐 + `scale: .96`, 넓은 버튼 · 탭 = 흐려짐만, 목록 줄 = 배경 덧칠 + 70ms 지연
+- [ ] 버튼 = 흐려짐 + `scale: .96`, 넓은 버튼 · 탭 = 흐려짐만, 목록 줄 = 배경 덧칠 + 50ms 지연
 - [ ] 움직임 10px · `pointercancel` · `scroll` · `dragstart` 이면 즉시 취소
 - [ ] 예전 `:active` 규칙 제거
 - [ ] 모든 `:hover` 는 `@media (hover: hover)` 안, Tailwind `hoverOnlyWhenSupported`

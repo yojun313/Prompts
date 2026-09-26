@@ -14,6 +14,7 @@ UnivDash(tmux · pm2 · git 대시보드)를 만들면서 실제로 부딪히고
 | [07-testing-mobile.md](07-testing-mobile.md) | 실제 폰 없이 모바일 검증: Playwright · safe-area 흉내 · iOS 뷰포트 모킹 |
 | [08-design-theme.md](08-design-theme.md) | **디자인 · 테마 전략**: 글래스 다크 디자인 원칙 · 토큰 · 컴포넌트 · 테마 4종 × 다크/라이트 · 깜빡임 없는 적용 |
 | [09-native-touch-feel.md](09-native-touch-feel.md) | **누르는 느낌을 아이폰 앱처럼**: 즉시 눌림 · 천천히 풀림 · sticky hover 제거 · iOS 햅틱 · 44pt 터치 영역 · 느린 버튼 표시 |
+| [10-perceived-speed.md](10-perceived-speed.md) | **반응 속도**: 정적 파일 immutable 캐시 · 누르는 순간 이동 · 흰 화면 없애기 · 캐시 먼저 보여 주기 · 누를 때 미리 받기 |
 
 `scripts/` — 바로 쓸 수 있는 도구
 
@@ -47,7 +48,7 @@ AUDIT_SAFE_AREA=59,34 uv run --with playwright python scripts/mobile_audit.py ht
 uv run --with playwright python scripts/ios_viewport_sim.py http://127.0.0.1:8000/chat "#input" ".composer" ".tabbar"
 ```
 
-## 가장 중요한 9가지 (먼저 읽기)
+## 가장 중요한 10가지 (먼저 읽기)
 
 1. **입력창 글자는 16px 이상** — 아니면 iOS 가 포커스할 때 화면을 확대한다.
 2. **홈 화면 앱 상태바는 `black`(불투명)** — `black-translucent` 는 화면 아래가 상태바 높이만큼 잘리는 iOS 버그가 있다.
@@ -58,3 +59,4 @@ uv run --with playwright python scripts/ios_viewport_sim.py http://127.0.0.1:800
 7. **관리용 앱은 외부 CDN 을 쓰지 말고 CSP `script-src 'self'`** — CDN 이 뚫리면 서버 권한이 넘어간다.
 8. **다크 기준으로 쓰고 라이트는 한곳에서 반전** — 템플릿은 `text-white/60` 같은 다크 유틸리티만, 라이트 모드는 CSS 에서 쓰는 클래스만 골라 덮어쓴다. 터미널 영역은 테마와 무관하게 항상 어둡게.
 9. **누를 땐 0ms, 뗄 땐 200ms · hover 는 `(hover: hover)` 에서만** — 이 두 가지만 해도 "웹 같은" 터치감이 사라진다. iOS 햅틱은 숨긴 `input[switch]` 를 사용자 탭 안에서 click().
+10. **정적 파일은 `?v=` 주소 + 1년 immutable** — 보안 미들웨어의 `no-store` 가 정적 파일까지 덮으면 페이지를 옮길 때마다 1MB 넘게 다시 받는다. 다시 여는 화면은 캐시부터 보여 주고 뒤에서 갱신.
