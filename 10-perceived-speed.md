@@ -29,6 +29,7 @@ UnivDash 에서 잰 값 (Playwright · CPU 4배 느리게 · 390×844):
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 _cache: dict[str, tuple[int, int, str]] = {}
 
+
 def asset_url(path: str) -> str:
     rel = path.lstrip("/")
     try:
@@ -42,17 +43,19 @@ def asset_url(path: str) -> str:
     _cache[rel] = (st.st_mtime_ns, st.st_size, url)
     return url
 
-def install(templates):                       # Jinja2Templates 마다 한 번
+
+def install(templates):  # Jinja2Templates 마다 한 번
     templates.env.globals["asset"] = asset_url
+
 
 def static_cache_control(path: str, query: str) -> bytes | None:
     if not path.startswith("/static/"):
-        return None                                   # 페이지 · API 는 no-store 그대로
+        return None  # 페이지 · API 는 no-store 그대로
     if any(p.startswith("v=") for p in query.split("&")):
         return b"public, max-age=31536000, immutable"
     if path.startswith("/static/vendor/"):
-        return b"public, max-age=2592000"             # CSS 안에서 상대 경로로 부르는 글꼴 등
-    return b"no-cache"                                # 아이콘 · manifest: ETag 로 304
+        return b"public, max-age=2592000"  # CSS 안에서 상대 경로로 부르는 글꼴 등
+    return b"no-cache"  # 아이콘 · manifest: ETag 로 304
 ```
 
 ```python
@@ -195,7 +198,9 @@ nav = await page.evaluate("""() => { const n = performance.getEntriesByType('nav
   return { dcl: Math.round(n.domContentLoadedEventEnd), fetched: r.filter(x => x.transferSize > 0).length,
            kb: Math.round(r.reduce((a, x) => a + x.transferSize, 0) / 1024) }; }""")
 # 메인 스레드 막힘
-await page.add_init_script("window.__lt=[]; new PerformanceObserver(l => l.getEntries().forEach(e => __lt.push(Math.round(e.duration)))).observe({type:'longtask', buffered:true});")
+await page.add_init_script(
+    "window.__lt=[]; new PerformanceObserver(l => l.getEntries().forEach(e => __lt.push(Math.round(e.duration)))).observe({type:'longtask', buffered:true});"
+)
 ```
 
 ## 체크리스트
